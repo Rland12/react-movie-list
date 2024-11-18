@@ -1,49 +1,83 @@
-import { useState } from 'react'
-import { Navbar, Container, Nav, NavDropdown, Button } from 'react-bootstrap'
-import { Card } from 'react-bootstrap'
-import './App.css'
-
+import { useState, useEffect } from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import axios from "axios";
+import "./App.css";
+import Navbarc from "./components/Navbarc.jsx";
+import Cards from "./components/Cards.jsx";
+import CarouselBanner from "./components/CarouselBanner.jsx";
+import CustomPagination from "./components/CustomPagination.jsx";
 
 function App() {
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 8;
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("http://localhost:3000/movies"); // Correct API endpoint
+        console.log("API Response:", response.data); // Debugging
+        setMovies(response.data.results || []); // Safeguard against missing results
+      } catch (error) {
+        setError("Failed to load movies. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, []);
+
+ // Pagination logic
+ const indexOfLastCard = currentPage * cardsPerPage;
+ const indexOfFirstCard = indexOfLastCard - cardsPerPage;
+ const currentMovies = movies.slice(indexOfFirstCard, indexOfLastCard);
+
+ const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <>
-      <Navbar expand="lg" className="bg-body-tertiary">
-      <Container>
-        <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#link">Link</Nav.Link>
-            <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">
-                Another action
-              </NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">
-                Separated link
-              </NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-        </Navbar.Collapse>
+      <Navbarc />
+      <Container fluid className="text-center">
+        {loading ? (
+          <h1>Loading movies...</h1>
+        ) : error ? (
+          <h2>{error}</h2>
+        ) : (
+        <>
+          <CarouselBanner movies={movies} />
+          <h2 className="py-4">Popular This Week</h2>
+          <hr></hr>
+          <Row className="mt-4 text-center">
+            {currentMovies.map((movie) => (
+              <Col key={movie.id} xs={12} sm={6} md={4} lg={3} className="mb-4  d-flex justify-content-center">
+                <Cards
+                  title={movie.title}
+                  description={movie.overview}
+                  image={
+                    movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                      : "https://placehold.co/500x750?text=No+Image"
+                  }
+                  rating={movie.vote_average}
+                />
+              </Col>
+            ))} 
+          </Row>
+          {/* Add Pagination Controls */}
+          <CustomPagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(movies.length / cardsPerPage)}
+              paginate={paginate}
+          />
+        </>
+        )}
       </Container>
-    </Navbar>
-    <Card>
-      <Card.Img variant="top" src="holder.js/100px180" />
-      <Card.Body>
-        <Card.Title>Card Title</Card.Title>
-        <Card.Text>
-          Some quick example text to build on the card title and make up the bulk of
-          the card's content.
-        </Card.Text>
-        <Button variant="primary">Go somewhere</Button>
-      </Card.Body>
-    </Card>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
