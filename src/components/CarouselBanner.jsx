@@ -1,31 +1,22 @@
-import Carousel from 'react-bootstrap/Carousel';
+import Carousel from "react-bootstrap/Carousel";
 
-function CarouselBanner() {
+function CarouselBanner({ movies }) {
   return (
     <Carousel>
-      <Carousel.Item interval={1000}>
-      <img variant="top" src="https://placehold.co/200x200" alt="palceholder"/>
-        <Carousel.Caption>
-          <h3>First slide label</h3>
-          <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item interval={500}>
-      <img variant="top" src="https://placehold.co/200x200" alt="palceholder"/>
-        <Carousel.Caption>
-          <h3>Second slide label</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item>
-      <img variant="top" src="https://placehold.co/200x200" alt="palceholder"/>
-        <Carousel.Caption>
-          <h3>Third slide label</h3>
-          <p>
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-          </p>
-        </Carousel.Caption>
-      </Carousel.Item>
+      {movies.map((movie) => (
+        <Carousel.Item key={movie.id} >
+          <img
+            variant="top"
+            src={`https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`} // Use movie backdrop image
+            alt={movie.title}
+            style={{ width: "100%", objectFit: "cover" }} // Adjust the size and fit
+          />
+          <Carousel.Caption>
+            <h3>{movie.title}</h3>
+            <p>{movie.overview}</p>
+          </Carousel.Caption>
+        </Carousel.Item>
+      ))}
     </Carousel>
   );
 }
