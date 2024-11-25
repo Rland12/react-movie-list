@@ -5,7 +5,7 @@ import cors from "cors";
 import axios from "axios";
 
 const app = express();
-dotenv.config({ path: "./src/backend/.env" });
+dotenv.config();
 app.use(cors());
 
 const PORT = process.env.PORT || 4000;
